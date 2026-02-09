@@ -1,0 +1,30 @@
+[project]
+name = "genai-venkat"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-dotenv",
+  "ipykernel",
+  "ipywidgets",
+  "requests",
+  "numpy",
+  "pandas",
+  "scipy",
+  "scikit-learn",
+  "matplotlib",
+  "torch",
+  "transformers",
+  "tqdm",
+  "openai",
+  "gradio",
+  "langchain",
+  "langchain-core",
+  "langchain-text-splitters",
+  "langchain-openai",
+  "langchain-chroma",
+  "langchain-community",
+  "datasets==3.6.0",
+  "google-generativeai"
+]
