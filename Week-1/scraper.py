@@ -1,32 +1,37 @@
 from bs4 import BeautifulSoup
 import requests
-import re
 
+
+# Standard headers to fetch a website
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
 }
 
-def fetch_website_contents(url, max_chars=2000):
-    response = requests.get(url, headers=headers, timeout=10)
-    response.raise_for_status()
 
-    # IMPORTANT: use decoded text, not raw bytes
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    title = soup.title.string.strip() if soup.title and soup.title.string else "No title"
-
+def fetch_website_contents(url):
+    """
+    Return the title and contents of the website at the given url;
+    truncate to 2,000 characters as a sensible limit
+    """
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    title = soup.title.string if soup.title else "No title found"
     if soup.body:
-        for tag in soup.body(["script", "style", "img", "input", "noscript"]):
-            tag.decompose()
-
-        text = soup.body.get_text(separator=" ", strip=True)
+        for irrelevant in soup.body(["script", "style", "img", "input"]):
+            irrelevant.decompose()
+        text = soup.body.get_text(separator="\n", strip=True)
     else:
         text = ""
+    return (title + "\n\n" + text)[:2_000]
 
-    # 🔥 Gemini-critical sanitization
-    text = text.encode("utf-8", "ignore").decode("utf-8")
-    text = re.sub(r"\s+", " ", text)
-    text = re.sub(r"[^\x20-\x7E]", "", text)
 
-    content = f"{title}\n\n{text}"
-    return content[:max_chars]
+def fetch_website_links(url):
+    """
+    Return the links on the webiste at the given url
+    I realize this is inefficient as we're parsing twice! This is to keep the code in the lab simple.
+    Feel free to use a class and optimize it!
+    """
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    links = [link.get("href") for link in soup.find_all("a")]
+    return [link for link in links if link]
